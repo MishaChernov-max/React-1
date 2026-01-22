@@ -1,8 +1,7 @@
 import { useMemo, useState } from "react";
 import "./App.css";
-import { Countries } from "./components/Countries/Countries";
-import { Header } from "./components/Header/Header";
-import { SearchAndFilters } from "./components/SearchAndFilters/SearchAndFilters";
+import { Counter } from "./components/Counter/Counter";
+import { CounterLogs } from "./components/CounterLogs/CounterLogs";
 
 const countries = [
   {
@@ -78,14 +77,8 @@ function App() {
   }, [searchValue, sortValue]);
   return (
     <>
-      <Header />
-      <SearchAndFilters
-        searchValue={searchValue}
-        setSearchValue={setSearchValue}
-        sortValue={sortValue}
-        setSortValue={setSortValue}
-      />
-      <Countries countries={sortedCountries} />
+      <Counter />
+      <CounterLogs />
     </>
   );
 }
