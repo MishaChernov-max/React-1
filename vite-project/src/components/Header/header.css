@@ -1,0 +1,13 @@
+header {
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+  padding: 20px 80px;
+}
+.header-mode {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.header-bar {
+  display: flex;
+  justify-content: space-between;
+}
