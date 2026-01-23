@@ -3,6 +3,7 @@ import "./App.css";
 import { Countries } from "./components/Countries/Countries";
 import { Header } from "./components/Header/Header";
 import { SearchAndFilters } from "./components/SearchAndFilters/SearchAndFilters";
+import { NameForm } from "./components/NameForm/NameForm";
 
 const countries = [
   {
@@ -78,14 +79,7 @@ function App() {
   }, [searchValue, sortValue]);
   return (
     <>
-      <Header />
-      <SearchAndFilters
-        searchValue={searchValue}
-        setSearchValue={setSearchValue}
-        sortValue={sortValue}
-        setSortValue={setSortValue}
-      />
-      <Countries countries={sortedCountries} />
+      <NameForm />
     </>
   );
 }
