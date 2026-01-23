@@ -1,7 +1,7 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import "./App.css";
-import { Counter } from "./components/Counter/Counter";
-import { CounterLogs } from "./components/CounterLogs/CounterLogs";
+import { ModalBody } from "./components/Modal/ModalBody";
+import { Modal } from "./components/Modal/Modal";
 
 const countries = [
   {
@@ -63,22 +63,17 @@ const countries = [
 ];
 
 function App() {
-  const [searchValue, setSearchValue] = useState("");
-  const [sortValue, setSortValue] = useState("default");
-  const sortedCountries = useMemo(() => {
-    return countries.filter((country) => {
-      const firstParam = country.name.includes(searchValue);
-      const secondParam =
-        sortValue === "default" ||
-        sortValue === "All" ||
-        country.region === sortValue;
-      return firstParam && secondParam;
-    });
-  }, [searchValue, sortValue]);
+  const [visible, setVisible] = useState(false);
+
   return (
     <>
-      <Counter />
-      <CounterLogs />
+      <button onClick={() => setVisible(true)}>Открыть модалку</button>
+      <Modal
+        title="Modal header"
+        children={<ModalBody />}
+        isOpen={visible}
+        onClose={() => setVisible(false)}
+      />
     </>
   );
 }
