@@ -4,6 +4,7 @@ import { Countries } from "./components/Countries/Countries";
 import { Header } from "./components/Header/Header";
 import { SearchAndFilters } from "./components/SearchAndFilters/SearchAndFilters";
 import { NameForm } from "./components/NameForm/NameForm";
+import { LoginForm } from "./components/LoginForm/LoginForm";
 
 const countries = [
   {
@@ -80,6 +81,7 @@ function App() {
   return (
     <>
       <NameForm />
+      <LoginForm />
     </>
   );
 }
