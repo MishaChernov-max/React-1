@@ -1,91 +1,83 @@
+import { v4 as uuidv4 } from "uuid";
 import { useMemo, useState } from "react";
 import "./App.css";
-import { Countries } from "./components/Countries/Countries";
-import { Header } from "./components/Header/Header";
-import { SearchAndFilters } from "./components/SearchAndFilters/SearchAndFilters";
-
-const countries = [
-  {
-    name: "Afghanistan",
-    capital: "Kabul",
-    flags: "https://flagcdn.com/af.svg",
-    population: "27,657,145",
-    region: "Asia",
-  },
-  {
-    name: "Afbania",
-    capital: "Tirana",
-    flags: "https://flagcdn.com/al.svg",
-    population: " 27,657,145",
-    region: "Europe",
-  },
-  {
-    name: "Argentina",
-    capital: "Buenos Aires",
-    flags: "https://flagcdn.com/ar.svg",
-    population: "45,376,763",
-    region: "South America",
-  },
-  {
-    name: "Bangladesh",
-    capital: "Dhaka",
-    flags: "https://flagcdn.com/bd.svg",
-    population: "164,689,383",
-    region: "Asia",
-  },
-  {
-    name: "Belgium",
-    capital: "Brussels",
-    flags: "https://flagcdn.com/be.svg",
-    population: "11,555,997",
-    region: "Europe",
-  },
-  {
-    name: "France",
-    capital: "Paris",
-    flags: "https://flagcdn.com/fr.svg",
-    population: "67,391,582",
-    region: "Europe",
-  },
-  {
-    name: "Italy",
-    capital: "Rome",
-    flags: "https://flagcdn.com/it.svg",
-    population: "59,554,023",
-    region: "Europe",
-  },
-  {
-    name: "Nigeria",
-    capital: "Abuja",
-    flags: "https://flagcdn.com/ng.svg",
-    population: "206,139,587",
-    region: "Africa",
-  },
-];
+import { Button } from "./components/Button/Button";
+import { Field } from "./components/Field/Field";
+import type { TodoData } from "./components/Todo/Todo";
+import { TodoList } from "./components/TodoList/TodoList";
 
 function App() {
-  const [searchValue, setSearchValue] = useState("");
-  const [sortValue, setSortValue] = useState("default");
-  const sortedCountries = useMemo(() => {
-    return countries.filter((country) => {
-      const firstParam = country.name.includes(searchValue);
-      const secondParam =
-        sortValue === "default" ||
-        sortValue === "All" ||
-        country.region === sortValue;
-      return firstParam && secondParam;
-    });
-  }, [searchValue, sortValue]);
+  const [value, setValue] = useState("");
+  const [tasks, setTasks] = useState<TodoData[]>([]);
+  const addTask = () => {
+    if (value.trim() === "") return;
+    setTasks((prev) => [...prev, { id: uuidv4(), done: false, text: value }]);
+    setValue("");
+  };
+  const removeTask = (id: string) => {
+    setTasks((prev) => prev.filter((task) => task.id !== id));
+  };
+  const toggleStatus = (id: string) => {
+    setTasks((prev) =>
+      prev.map((task) => (task.id === id ? { ...task, done: true } : task)),
+    );
+  };
+  const revertClick = (id: string) => {
+    setTasks((prev) =>
+      prev.map((task) => (task.id === id ? { ...task, done: false } : task)),
+    );
+  };
+  const saveTask = (id: string, value: string) => {
+    setTasks((prev) =>
+      prev.map((task) => (task.id === id ? { ...task, text: value } : task)),
+    );
+  };
+  const completedTasks = useMemo(() => {
+    return tasks.filter((task) => task.done === true);
+  }, [tasks]);
+  const activeTasks = useMemo(() => {
+    return tasks.filter((task) => task.done === false);
+  }, [tasks]);
   return (
     <>
-      <Header />
-      <SearchAndFilters
-        searchValue={searchValue}
-        setSearchValue={setSearchValue}
-        sortValue={sortValue}
-        setSortValue={setSortValue}
-      />
-      <Countries countries={sortedCountries} />
+      <div style={{ margin: "0 auto", width: "200px" }}>
+        <h1 style={{ textAlign: "center" }}>Todo List</h1>
+        <div style={{ display: "flex", gap: "10px" }}>
+          <Field value={value} onChange={setValue} />
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              addTask();
+            }}
+          >
+            <Button
+              children="add"
+              styles={{
+                background: "green",
+                color: "white",
+                cursor: "pointer",
+                border: 0,
+              }}
+              type="submit"
+            />
+          </form>
+        </div>
+        <TodoList
+          todo={activeTasks}
+          onDelete={removeTask}
+          onDone={toggleStatus}
+          onRevertClick={revertClick}
+          onSaveClick={saveTask}
+        />
+        <h2>Completed Tasks</h2>
+        <TodoList
+          todo={completedTasks}
+          onDelete={removeTask}
+          onDone={toggleStatus}
+          onRevertClick={revertClick}
+          onSaveClick={saveTask}
+        />
+      </div>
     </>
   );
 }
