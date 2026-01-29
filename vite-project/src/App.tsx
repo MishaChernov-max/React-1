@@ -1,91 +1,122 @@
 import { useMemo, useState } from "react";
 import "./App.css";
-import { Countries } from "./components/Countries/Countries";
-import { Header } from "./components/Header/Header";
-import { SearchAndFilters } from "./components/SearchAndFilters/SearchAndFilters";
+import { UserList, type User } from "./components/UserList/UserList";
+import { allUsers } from "./constants";
+import { AuthForm } from "./components/AuthForm/AuthForm";
 
-const countries = [
-  {
-    name: "Afghanistan",
-    capital: "Kabul",
-    flags: "https://flagcdn.com/af.svg",
-    population: "27,657,145",
-    region: "Asia",
-  },
-  {
-    name: "Afbania",
-    capital: "Tirana",
-    flags: "https://flagcdn.com/al.svg",
-    population: " 27,657,145",
-    region: "Europe",
-  },
-  {
-    name: "Argentina",
-    capital: "Buenos Aires",
-    flags: "https://flagcdn.com/ar.svg",
-    population: "45,376,763",
-    region: "South America",
-  },
-  {
-    name: "Bangladesh",
-    capital: "Dhaka",
-    flags: "https://flagcdn.com/bd.svg",
-    population: "164,689,383",
-    region: "Asia",
-  },
-  {
-    name: "Belgium",
-    capital: "Brussels",
-    flags: "https://flagcdn.com/be.svg",
-    population: "11,555,997",
-    region: "Europe",
-  },
-  {
-    name: "France",
-    capital: "Paris",
-    flags: "https://flagcdn.com/fr.svg",
-    population: "67,391,582",
-    region: "Europe",
-  },
-  {
-    name: "Italy",
-    capital: "Rome",
-    flags: "https://flagcdn.com/it.svg",
-    population: "59,554,023",
-    region: "Europe",
-  },
-  {
-    name: "Nigeria",
-    capital: "Abuja",
-    flags: "https://flagcdn.com/ng.svg",
-    population: "206,139,587",
-    region: "Africa",
-  },
+interface UserWithAge extends User {
+  age?: number;
+}
+
+const sortOptions = [
+  { label: "По имени", value: "name" },
+  { label: "По профессии", value: "profession" },
+  { label: "По возрасту", value: "age" },
 ];
 
 function App() {
-  const [searchValue, setSearchValue] = useState("");
-  const [sortValue, setSortValue] = useState("default");
-  const sortedCountries = useMemo(() => {
-    return countries.filter((country) => {
-      const firstParam = country.name.includes(searchValue);
-      const secondParam =
-        sortValue === "default" ||
-        sortValue === "All" ||
-        country.region === sortValue;
-      return firstParam && secondParam;
+  const [users, setUsers] = useState<UserWithAge[]>(allUsers);
+  const [filter, setFilter] = useState<string>("default");
+
+  const [selectedSort, setSelectedSort] = useState<string>("name");
+
+  const professions = useMemo(() => {
+    const uniqueProfessions = Array.from(
+      new Set(users.map((u) => u.profession)),
+    ).sort();
+    return uniqueProfessions;
+  }, [users]);
+
+  const filteredUsers = useMemo(() => {
+    if (filter === "default") return users;
+    return users.filter(
+      (user) => user.profession.toLowerCase() === filter.toLowerCase(),
+    );
+  }, [filter, users]);
+
+  const handleSort = () => {
+    const sorted = [...users].sort((a, b) => {
+      const fieldA = a[selectedSort as keyof UserWithAge];
+      const fieldB = b[selectedSort as keyof UserWithAge];
+
+      if (fieldA === undefined) return 1;
+      if (fieldB === undefined) return -1;
+
+      if (typeof fieldA === "number" && typeof fieldB === "number") {
+        return fieldA - fieldB;
+      }
+
+      return String(fieldA).localeCompare(String(fieldB));
     });
-  }, [searchValue, sortValue]);
+
+    setUsers(sorted);
+  };
+
+  const addUser = (name: string, profession: string) => {
+    setUsers((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        name,
+        profession,
+        age: Math.floor(Math.random() * 40) + 20,
+      },
+    ]);
+  };
+
   return (
     <>
-      <Header />
-      <SearchAndFilters
-        searchValue={searchValue}
-        setSearchValue={setSearchValue}
-        sortValue={sortValue}
-        setSortValue={setSortValue}
-      />
-      <Countries countries={sortedCountries} />
+      <div className="user-bar">
+        <AuthForm addUser={addUser} />
+      </div>
+
+      <div className="container">
+        <div className="flex-container">
+          <div className="filter-block">
+            <select
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              className="filter-select"
+            >
+              <option value="default">Все профессии</option>
+              {professions.map((prof) => (
+                <option key={prof} value={prof}>
+                  {prof}
+                </option>
+              ))}
+            </select>
+            {filter !== "default" && (
+              <button onClick={() => setFilter("default")}>
+                Сбросить фильтр
+              </button>
+            )}
+          </div>
+          <div
+            className="sort-block"
+            style={{ marginLeft: "20px", display: "flex", gap: "10px" }}
+          >
+            <select
+              value={selectedSort}
+              onChange={(e) => setSelectedSort(e.target.value)}
+            >
+              {sortOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            <button onClick={handleSort}>Сортировать</button>
+          </div>
+        </div>
+
+        {filteredUsers.length > 0 ? (
+          <UserList users={filteredUsers} />
+        ) : (
+          <p style={{ textAlign: "center", marginTop: "20px" }}>
+            Пользователи не найдены
+          </p>
+        )}
+      </div>
     </>
   );
 }
