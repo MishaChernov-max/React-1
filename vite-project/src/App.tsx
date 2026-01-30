@@ -1,93 +1,62 @@
-import { useMemo, useState } from "react";
-import "./App.css";
-import { Countries } from "./components/Countries/Countries";
-import { Header } from "./components/Header/Header";
-import { SearchAndFilters } from "./components/SearchAndFilters/SearchAndFilters";
+import { useState } from "react";
 
-const countries = [
-  {
-    name: "Afghanistan",
-    capital: "Kabul",
-    flags: "https://flagcdn.com/af.svg",
-    population: "27,657,145",
-    region: "Asia",
-  },
-  {
-    name: "Afbania",
-    capital: "Tirana",
-    flags: "https://flagcdn.com/al.svg",
-    population: " 27,657,145",
-    region: "Europe",
-  },
-  {
-    name: "Argentina",
-    capital: "Buenos Aires",
-    flags: "https://flagcdn.com/ar.svg",
-    population: "45,376,763",
-    region: "South America",
-  },
-  {
-    name: "Bangladesh",
-    capital: "Dhaka",
-    flags: "https://flagcdn.com/bd.svg",
-    population: "164,689,383",
-    region: "Asia",
-  },
-  {
-    name: "Belgium",
-    capital: "Brussels",
-    flags: "https://flagcdn.com/be.svg",
-    population: "11,555,997",
-    region: "Europe",
-  },
-  {
-    name: "France",
-    capital: "Paris",
-    flags: "https://flagcdn.com/fr.svg",
-    population: "67,391,582",
-    region: "Europe",
-  },
-  {
-    name: "Italy",
-    capital: "Rome",
-    flags: "https://flagcdn.com/it.svg",
-    population: "59,554,023",
-    region: "Europe",
-  },
-  {
-    name: "Nigeria",
-    capital: "Abuja",
-    flags: "https://flagcdn.com/ng.svg",
-    population: "206,139,587",
-    region: "Africa",
-  },
+const initialItems = [
+  { title: "pretzels", id: 0 },
+  { title: "crispy seaweed", id: 1 },
+  { title: "granola bar", id: 2 },
 ];
 
-function App() {
-  const [searchValue, setSearchValue] = useState("");
-  const [sortValue, setSortValue] = useState("default");
-  const sortedCountries = useMemo(() => {
-    return countries.filter((country) => {
-      const firstParam = country.name.includes(searchValue);
-      const secondParam =
-        sortValue === "default" ||
-        sortValue === "All" ||
-        country.region === sortValue;
-      return firstParam && secondParam;
-    });
-  }, [searchValue, sortValue]);
+export default function Menu() {
+  const [items, setItems] = useState(initialItems);
+  const [selectedItem, setSelectedItem] = useState(items[0]);
+
+  function handleItemChange(
+    id: number,
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) {
+    setItems(
+      items.map((item) => {
+        if (item.id === id && selectedItem.id === id) {
+          setSelectedItem(item);
+          return {
+            ...item,
+            title: e.target.value,
+          };
+        } else if (item.id === id) {
+          return {
+            ...item,
+            title: e.target.value,
+          };
+        } else {
+          return item;
+        }
+      }),
+    );
+  }
+
   return (
     <>
-      <Header />
-      <SearchAndFilters
-        searchValue={searchValue}
-        setSearchValue={setSearchValue}
-        sortValue={sortValue}
-        setSortValue={setSortValue}
-      />
-      <Countries countries={sortedCountries} />
+      <h2>What's your travel snack?</h2>
+      <ul>
+        {items.map((item) => (
+          <li key={item.id}>
+            <input
+              value={item.title}
+              onChange={(e) => {
+                handleItemChange(item.id, e);
+              }}
+            />
+            <button
+              onClick={() => {
+                setSelectedItem(item);
+              }}
+            >
+              Choose
+            </button>
+          </li>
+        ))}
+      </ul>
+      <p>You picked {selectedItem.title}.</p>
     </>
   );
 }
-
-export default App;
