@@ -1,7 +1,18 @@
 body {
   margin: 0;
 }
+#root {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .container {
   max-width: 1670px;
   margin: 0 auto;
+}
+.game {
+  display: flex;
+}
+.game-info {
+  margin-top: 20px;
 }
